@@ -1,0 +1,129 @@
+[
+  [
+    {
+      "text": [
+        "LTAG"
+      ],
+      "confidence": 0.42406874895095825,
+      "severity": "minor",
+      "start": 67,
+      "end": 72,
+      "check severity": [
+        "minor",
+        "minor"
+      ]
+    }
+  ],
+  [
+    {
+      "text": [
+        "grammaires",
+        "adjacentes",
+        "à",
+        "l'arbre",
+        "lexicalisé",
+        "(LTAG)"
+      ],
+      "confidence": 0.42258691787719727,
+      "severity": "major",
+      "start": 53,
+      "end": 103,
+      "check severity": [
+        "major",
+        "major",
+        "major",
+        "major",
+        "major",
+        "major",
+        "minor",
+        "major",
+        "major",
+        "major",
+        "major",
+        "minor"
+      ]
+    },
+    {
+      "text": [
+        "bilexi-cal"
+      ],
+      "confidence": 0.44470226764678955,
+      "severity": "major",
+      "start": 143,
+      "end": 154,
+      "check severity": [
+        "major",
+        "major",
+        "major",
+        "major"
+      ]
+    }
+  ],
+  [
+    {
+      "text": [
+        "de",
+        "dépendance",
+        "bien",
+        "formée"
+      ],
+      "confidence": 0.39145439863204956,
+      "severity": "major",
+      "start": 57,
+      "end": 83,
+      "check severity": [
+        "minor",
+        "minor",
+        "minor",
+        "major",
+        "minor",
+        "minor"
+      ]
+    },
+    {
+      "text": [
+        "parseur"
+      ],
+      "confidence": 0.3943387269973755,
+      "severity": "minor",
+      "start": 102,
+      "end": 110,
+      "check severity": [
+        "minor",
+        "minor",
+        "minor"
+      ]
+    }
+  ],
+  [
+    {
+      "text": [
+        "linéaire",
+        "temporelle"
+      ],
+      "confidence": 0.4311351180076599,
+      "severity": "minor",
+      "start": 66,
+      "end": 86,
+      "check severity": [
+        "minor",
+        "minor"
+      ]
+    },
+    {
+      "text": [
+        "longueur",
+        "d'entrée."
+      ],
+      "confidence": 0.40768036246299744,
+      "severity": "minor",
+      "start": 94,
+      "end": 113,
+      "check severity": [
+        "minor",
+        "minor",
+        "minor"
+      ]
+    }
+  ]
+]
