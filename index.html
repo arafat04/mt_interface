@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Text Annotation Visualization</title>
+  <style>
+    .highlight {
+      background-color: yellow;
+      padding: 2px;
+      border-radius: 3px;
+    }
+    #slider-container {
+      margin: 20px 0;
+    }
+    #text-container {
+      margin: 20px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+      min-height: 150px;
+      white-space: pre-wrap;
+    }
+    #selected-words-container {
+      margin: 20px;
+      padding: 20px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div id="slider-container">
+    <label for="thresholdSlider">Threshold: </label>
+    <input type="range" id="thresholdSlider" min="0" max="1" step="0.01" value="0.5" />
+    <span id="thresholdValue">0.50</span>
+  </div>
+
+  <div contenteditable="true" id="text-container"></div>
+
+  <div id="selected-words-container">
+    <h3>Selected Words with Scores:</h3>
+    <ul id="selected-words-list"></ul>
+  </div>
+
+  <script>
+    let text = "Transformation de structures de dépendances en arbres de dérivation LTAG Nous proposons un nouvel algorithme pour analyser les grammaires adjacentes à l'arbre lexicalisé (LTAG) qui utilise des relations de dépendance bilexi-cal pré-assignées comme filtre. C'est-à-dire, compte tenu d'une phrase et de sa structure de dépendance bien formée correspondante, le parseur attribue des arbres élémentaires à des mots de la phrase et retourne des sites d'attachement compatibles avec ces arbres élémentaires et des dépendances prédéfinies. Par ailleurs, on prouve que cet algorithme présente une complexité linéaire temporelle dans la longueur d'entrée. Cet algorithme retourne tous les arbres de dérivation compatibles en tant que forêt compactée. Ce résultat présente un intérêt pratique pour le développement d'analyseurs LTAG pondérés efficaces basés sur un décodage d'arbre de dérivation.";
+
+    const annotationData = [
+      [{'text': ['LTAG'], 'confidence': 0.424, 'severity': 'minor', 'startnew': 67, 'endnew': 72}],
+      [{'text': ['grammaires','adjacentes','à',"l'arbre",'lexicalisé','(LTAG)'], 'confidence': 0.423, 'severity': 'major', 'startnew': 126, 'endnew': 176},
+       {'text': ['bilexi-cal'], 'confidence': 0.445, 'severity': 'major', 'startnew': 216, 'endnew': 227}],
+      [{'text': ['de','dépendance','bien','formée'], 'confidence': 0.391, 'severity': 'major', 'startnew': 313, 'endnew': 339},
+       {'text': ['parseur'], 'confidence': 0.394, 'severity': 'minor', 'startnew': 358, 'endnew': 366}],
+      [{'text': ['linéaire','temporelle'], 'confidence': 0.431, 'severity': 'minor', 'startnew': 599, 'endnew': 619},
+       {'text': ['longueur',"d'entrée."], 'confidence': 0.408, 'severity': 'minor', 'startnew': 627, 'endnew': 646}],
+      [{'text': ['tant','que','forêt','compactée.'], 'confidence': 0.391, 'severity': 'major', 'startnew': 715, 'endnew': 741}],
+      [{'text': ['LTAG'], 'confidence': 0.440, 'severity': 'minor', 'startnew': 817, 'endnew': 822},
+       {'text': ['décodage',"d'arbre",'de','dérivation.'], 'confidence': 0.426, 'severity': 'minor', 'startnew': 854, 'endnew': 886}]
+    ];
+
+    const severityScore = { 'minor': 1, 'major': 2, 'critical': 3 };
+    let sortedSpans = [], totalScore = 0;
+
+    annotationData.forEach((sentence, index) => {
+      sentence.forEach(annotation => {
+        if (annotation.startnew !== undefined && annotation.endnew !== undefined) {
+          const totalChars = annotation.text.reduce((acc, word) => acc + word.length, 0);
+          const score = annotation.confidence +
+                        (severityScore[annotation.severity] / 6) -
+                        Math.log10((index + 1) / annotationData.length) +
+                        (1 / totalChars) * 10;
+          sortedSpans.push([annotation.text, score, annotation.startnew, annotation.endnew]);
+        }
+      });
+    });
+
+    sortedSpans.sort((a, b) => b[1] - a[1]);
+    totalScore = sortedSpans.reduce((acc, [_, score]) => acc + score, 0);
+
+    // Initial render
+    document.getElementById('text-container').textContent = text;
+
+    function updateThreshold() {
+      text = document.getElementById('text-container').innerText;
+
+      const threshold = parseFloat(document.getElementById('thresholdSlider').value);
+      document.getElementById('thresholdValue').textContent = threshold.toFixed(2);
+
+      const userInput = totalScore * threshold;
+      let accumulatedScore = 0;
+      let selectedWords = [];
+
+      for (let [words, score, start, end] of sortedSpans) {
+        if (accumulatedScore >= userInput) break;
+        selectedWords.push({ words, score, start, end });
+        accumulatedScore += score;
+      }
+
+      showSelectedWords(selectedWords);
+      highlightWordsInText(selectedWords);
+    }
+
+    function showSelectedWords(selectedWords) {
+      const listContainer = document.getElementById('selected-words-list');
+      listContainer.innerHTML = '';
+      selectedWords.forEach(({ words, score }) => {
+        const li = document.createElement('li');
+        li.textContent = `${words.join(' ')} (Score: ${score.toFixed(2)})`;
+        listContainer.appendChild(li);
+      });
+    }
+
+    function highlightWordsInText(selectedWords) {
+      selectedWords.sort((a, b) => a.start - b.start);
+
+      let highlightedText = '';
+      let lastIndex = 0;
+
+      selectedWords.forEach(({ start, end }) => {
+        highlightedText += text.slice(lastIndex, start);
+        highlightedText += `<span class="highlight">${text.slice(start, end)}</span>`;
+        lastIndex = end;
+      });
+
+      highlightedText += text.slice(lastIndex);
+      document.getElementById('text-container').innerHTML = highlightedText;
+    }
+
+    document.getElementById('thresholdSlider').addEventListener('input', updateThreshold);
+
+    // Optional: re-apply highlighting if user edits the text and clicks outside
+    document.getElementById('text-container').addEventListener('blur', updateThreshold);
+
+    updateThreshold();
+  </script>
+</body>
+</html>
